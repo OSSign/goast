@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-2025
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.2'
+
+      - name: Build Go application
+        run: go build -o azuresigntool.exe main.go
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: azuresigntool
+      
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: azuresigntool.exe
+          tag_name: ${{ github.run_id }}
+          name: ${{ github.run_id }}
+      
